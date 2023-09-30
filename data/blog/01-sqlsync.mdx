@@ -1,0 +1,220 @@
+---
+title: "Episode #1: Carl Sverre, SQLSync"
+date: '2023-09-29'
+tags: ['sqlsync', 'edge', 'architecture']
+draft: false
+summary: "A database....in the browser? Gatsby co-founder Sam Bhagwat and SQLSync creator Carl Sverre chat local-first application architectures, why cloud is like disk and the edge is like RAM, and considerations to think about if you're starting a new local-first application."
+authors: ['sam-bhagwat','carl-sverre']
+---
+
+[![Carl Sverre video](https://img.youtube.com/vi/ew6eeFRugPI/0.jpg)](https://www.youtube.com/watch?v=ew6eeFRugPI)
+
+**Sam Bhagwat:** Hi, I'm Sam, I'm the Gatsby cofounder and we're here on the first episode of Local Dev Pod with Carl Sverre, who is the author and creator of SQLSync. Welcome Carl. 
+
+**Carl Sverre:** Thank you, Sam. I appreciate it. 
+
+**Sam Bhagwat:** Carl, can you can you talk a little bit about SQL Sync and what is SQL Sync? 
+
+**Carl Sverre:** SQL Sync is a a database that I like to think of as  designed for front end apps. So ultimately it's magical SQLite. So if you're familiar with SQLite, which is a nice embedded relational database, we run SQLite in the browser and we automatically allow SQLite to be collaborative.
+
+So if one person edits a SQLite database running inside SQL Sync everyone else connected to the same database will see those changes. So yeah, so it's collaborative, local first. 
+
+**Sam Bhagwat:** One question that like comes to mind is like, why is this useful? 
+
+**Carl Sverre:** So I, I definitely come from a place of building front end applications.
+
+More than 10 years ago, I worked at Mixpanel where I did like a lot of front end app development. And I was really focused on data viz and like thinking about how to visualize complex data models then spent about 10 years working at SingleStore which used to be called MemSQL, which is a distributed sort of scalable relational database.
+
+And at SingleStore, I learned a lot about the low level fundamentals of how databases work. And I learned how databases think about indexes and how they optimize and how queries are executed. And that gave me a lot of insight into sort of the advantages of the relational model and also the advantages of a real database.
+
+So going forward to SQL sync, what I felt is missing in the front end space is like that sort of real database experience. It's about having a relational database that has indexes, that has all the advanced sort of SQL query features. And it's embedded directly in your application and it's super, super easy to use.
+
+**Sam Bhagwat:** Were the types of things you were building, like the user interfaces at MixPanel -- data intensive, visualization intensive -- do you think that having a database on the front end is like the right approach for building those types of applications?
+
+**Carl Sverre:** Yeah. If we look at it historically, it wasn't really possible to put a full database in the browser. The environment just wasn't capable enough to be able to do that. And so we always ended up with shim databases in the browser. Redux is a really famous state management library for react and in Redux, you end up with  an object of objects, tree of data maybe you have some arrays in there.
+
+And it works, you can definitely do this, but it's like a fancy caching layer, like it's not a real database. Why SQL Sync is very much like a real database, and we're basically saying that now the browser environment is capable of doing that. We have things like Web Workers, which allow us to run essentially parallel code inside web browsers.
+
+We have things like the Origin Private File Server system, which actually allows us to use like proper block oriented file APIs and byte oriented file APIs. We have a lot of advanced like more binary oriented types like UN8 arrays and stuff like that. And we're getting to the point where the browser sort of environment is a fully capable application environment.
+
+And so we finally can really build local-first real database systems that run inside the browser. 
+
+**Sam Bhagwat:** One question that we got a lot in the early days of Gatsby is like, gosh, like why now? 
+
+And a lot of times we were like, look, JavaScript is ready. Like the front-end dev stack is ready. It can do a lot of interactive things that were not possible five, 10 years ago. Now we're actually working on the data side of things. And the operation system-type capabilities that the browser has developed through the efforts of Chrome and all the other vendors maturing over the years.
+
+**Carl Sverre:** Yeah, I think to me that's a major piece of why now. Like the capability for SQLSync to exist and other sort of browser based databases to exist was is a very recent thing and in the browser environment world. But there's another set of capabilities that are also fairly recent.
+
+Enable the back end to be to work the way you want it to work. So SQL Sync uses Cloudflare Durable Objects as its back end. And Cloudflare Durable Objects is a magical technology. It allows us to run compute very dynamically very close to the actual users who are connected to that compute.
+
+And so in the SQL Sync model, if you imagine SQL Sync being a bunch of SQLite databases. Each of those individual SQLite databases is hosted by a different durable object compute node. And this is all dynamic and automatic. And so the cool thing about this is that as your users connect to different documents, those where those durable objects are running in the world will actually dynamically change based on who's connected to the document.
+
+And that is a foundational shift of how we think about back end technologies. Usually we think about back end databases as being one centralized thing running, somewhere probably in U. S. East, like in Virginia. And that's it. That's your data model. And so we're fundamentally rethinking the back end as well as we're rethinking the front end to be more aligned towards edge first, local first applications.
+
+**Sam Bhagwat:** Yeah, I think it's interesting in the sense of the thick client versus thin client, like network architecture, like changing so much over time. And in some ways the cloud model is one model. And in some ways, this feels like  now that we've gotten to the edge we're re-enabling a kind of technology where every user in their browser is getting their own database. Like everything old seems to be becoming new again.
+
+**Carl Sverre:** Yeah, it's totally true. And I think we can go even further back. If we think about how apps ran more than 10 years ago, most applications ran on your computer.
+
+Especially applications like Microsoft Word, for example -- like they operated in a completely offline context. 
+
+They had potentially no online features at all. And if they did have online features, it was probably at the level of like logging into your account and maybe getting some like status updates or something like that, but. Full data document synchronization just straight up didn't exist.
+
+And so in those worlds, there, there is this like interesting analogy that I want to talk about today, which is this sort of "disk versus RAM" analogy. 
+
+In those old architectures where you have Microsoft Word running on your machine, when your file was saved to disk, it was idle, like it's just like a blob of binary on the disk.
+
+And when you load that file, we essentially materialize it up into RAM into a whole bunch of data structures that allow Microsoft Word, for example, to actually operate. 
+
+Most of those data structures are either reviewed for portions of the document -- like deserialized portions of the document, or they are data structures that don't need to be in saved state of the document at all -- like they're just purely ephemeral stuff.
+
+And I think that even this analogy, like this whole new thing is actually coming back as we move to an edge-first world, I think that there's an interesting sort of correlation where you can actually think about edge data, like data living on the edge as being the equivalent of the RAM in that analogy, where we materialize up from a state, which might be running in like S3 or inside like a sort of more centralized database.
+
+Thank you. We can materialize that up into edge server, essentially, to be able to enable super low latency operations and collaboration and all these sort of advantages and then save it back down. 
+
+**Sam Bhagwat:** Okay, so if I understand what you're saying correctly, what you're saying is that what we call the cloud now is essentially disk here.
+
+Your S3, your like GCP, your AWS, like whatever you've got. And then the edge is is RAM. You're paging, when you're creating an application, a cloud application architecture on the edge that you're essentially paging your cloud into ram as necessary to enable your user to have really fast experiences and then essentially shutting it off, I guess when they maybe close the browser tab. 
+
+**Carl Sverre:** Exactly. And like a really good example of like why this is useful. Imagine a most collaborative applications you're used to. People on this podcast might've used something like Figma, something like Linear, these types of apps. And if you haven't, just imagine a collaborative app, so you open up the application, your web browser, you're interacting and other people are interacting at the same time.
+
+There are some features of those collaborative applications that we're probably used to thinking about. One of those features is like shared cursors. It's like a really common, fun feature that you can see what other people are actively doing. Another similar feature that's like more common and maybe more of a like a Linear-style architecture or like a Notion-style tool is shared presence.
+
+Just knowing what other users are currently looking at the same thing as what you're looking at. So these two features are very interesting because I would argue that this state of these two features is very ephemeral. 
+
+You don't need that state to be persisted permanently into the document, you only need that state to exist so long as people are actively looking at the doc. Once no one's looking at the doc, there's no need for that state to exist. Yeah. The edge versus cloud model enables that in the edge -- you can have the additional state layers like presence and cursors, that are only there to enable a better user experience, but don't really need to be part of your core disk model, your cloud.
+
+So anyway I think that this cloud versus edge thing is very interesting to explore. 
+
+And so in SQLSync, because SQL Sync's backend is running on like an edge function, SQL Sync provides durability, but it provides it by essentially synchronizing back to more of the cloud model. When SQL Sync is no longer being used, like no one's currently editing a SQL Sync doc or viewing a SQL Sync doc, we can actually just terminate SQL Sync because we can durably save that, the state of the document out to something like S3 or out to some Postgres database or whatever we need.
+
+**Sam Bhagwat:** I want to move forward to if you're thinking about starting an application, or maybe you're working on an existing application that you're thinking of adding collaborative features to, how would you think about the benefits of. 
+
+Either SQLSync or the local first approach in general and whether it makes sense. 
+
+**Carl Sverre:** Yeah. So one thing that I've been framing as a way of explaining this new architectural paradigm is that local-first databases mostly fall into what I call document databases.
+
+It's not actually the same as the traditional definition of document databases. It's probably a bad terminology. But I guess the way to think about it is if you think about Notion, Notion basically is like a collaborative wiki, right?
+
+You can think of each individual page on Notion as potentially like a document. I think that's a pretty rational way to think about it. You could either store like an entire Notion wiki into one gigantic database. Or you could store all the individual sort of notion objects as like essentially their own database.
+
+And we can think about those two different models. And there's trade offs on both sides of the space. Another good example is like Figma. Figma has a document model in the sense that like each Figma file, which is like a collaborative image editor, each image Is its own document. If someone's editing one document, they don't need to see edits happening to another doc, right there.
+
+They're independent objects. So most local-first databases. really work well when you have this sort of document style structure to your application. And the reason is that most local first databases don't do partial synchronization. They synchronize the entire object. So if you have if for example, you had notion as a local first system using let's say Opaque, naïve local database.
+
+You potentially would have all of the docs in the entire wiki exist in one massive object. And this incurs like a scalability burden on the application. Because now, two users editing different pages on Notion for some reason, they're seeing those edits, even though the app doesn't need to know about that right now.
+
+We might need it later, but we don't need it now. So anyway, so long story short I feel that like the local first, the current state of like local first databases is very suited towards these document architectures. And when you start to have systems where the document architecture doesn't like map as easily it requires you to think a little harder about the trade offs and figure out how to map your system into that document model.
+
+**Sam Bhagwat:** It makes you think through your essentially sharding strategy or like your permission strategy a little bit earlier. Like is it on a document level or is it on a workspace level or whatever, because you essentially bake it into the application architecture in a way that's maybe a little bit easier to not have to worry about upfront if you're running a  Postgres instance, the way a traditional application might be structured. 
+
+**Carl Sverre:** Yeah it definitely is more difficult. Like you might, in normal applications with a classic backend with a normal API.
+
+We've learned how to develop systems that essentially do partial replication. So you have one big consistent database in the back end, and each user is different, is seeing a different subset of that database. And that like arguably can be mapped to the concept of partial replication. Although most front end don't do real replication.
+
+So essentially they end up being like a read-through cache in the front end, over some subset of the database state. And this architecture works, but it's difficult to make like fully local-first, and it's difficult to support optimistic mutations on the front end and collaboration features and all this type of stuff.
+
+And so right now there's a pretty hard trade off between that model, and the like local first model. Somewhere in the middle is a much more advanced local-first model that allows for actual partial replication, where you have this sort of singleton massive system on the back end, and then each user sees like a different subset of that system, but it's done in a dynamic way. 
+
+That's still I think, pretty much an area of research, but it's something that SQL Sync hopes to achieve one day.
+
+**Sam Bhagwat:** What I'm hearing you say is that hey, if you're building like an HR application with this user that can see salary data, but that user can't see salary data, local-first might not be the right use case for now.
+
+**Carl Sverre:** I actually, I think that we could talk about the HR case. Cause it's an interesting so in the HR case, as you like, very correctly identified is this problem of visibility, like you don't want everyone in your company to see everyone's salary or they're like SSN number or whatever. So you fundamentally need a model that allows for like visibility based permissions.
+
+One, one interesting idea that I've started to play with. Is this idea of layered databases. So essentially like we're used to sharding data like horizontally across like things like tenant, right? So we're used to sharding being like each customer has their own shard.
+
+That's like a very easy way to frame sharding, but we could actually also shard data based on permissions, right? So we could say that like data can be essentially sharded. Across like a set of different permissions from a visibility perspective. So we have like admin data, which is only visible by admins.
+
+And then we have one layer down, which is your HR team data, which is like everyone in HR can see the HR data and also admins can see the HR data. And then you have one layer down and these like these layered this layered model stacks like you have all these different layers.
+
+And we can think about sharding the data across that. In the local first document model could actually work for this, because what you could end up having is you could have essentially a set of documents, which each maps to a different layer of this sort of permission stack. And then in JavaScript, like on the front end, in the SQLite case specifically, like one convenient thing about SQLite is that we can actually observe all of those layers dynamically through a single SQL API. And so there is a world in which we start to reframe even like how we think about permissions to be able to work better in these like local first worlds.
+
+It's a harder model. It requires a little more sophistication of how you think about sharding and breaking up your data. But it does work pretty well and it gives you a very strong stance. Basically, you could basically provide like a very easy guarantee that anyone at like this level of the permissions hierarchy can never see anything higher because they can't even open the database.
+
+Like the database is just closed to them which is actually easier to manage. From a like, for example, like a, security perspective, it's easier at that super hardcore level of granularity than the normal case where like every API, like every REST API has to dynamically handle permissions and hide certain fields and show other fields based on who's querying the API.
+
+**Sam Bhagwat:** The model that you've chosen with SQLite is very interesting because in the sort of one big database, like everything in this big Postgres cluster, the trend is moving towards like row level locking and finer grained permissions, not just in the API, but actually codified in the database.
+
+Whereas what you're saying is that because you're essentially thinking about lots of much smaller databases, you can actually push the permissioning level higher and say look, if you don't have this permissions, you can't even read from that database or whatever it might be.
+
+**Carl Sverre:** And then we can do some really cool things on the local side, because again, one of the advantages of the system is that the database is completely local. 
+
+Which means that when the app is asking, hey, resolve this query. And let's say the query crosses like three permission boundaries.
+
+Like it says, get me like fields A, B, C, which is like universal. And then it asks for a person's SSN number or something. In this case because all the data is local, we can resolve that completely locally. So we could basically say if we have the like higher level commission database locally, then we just dynamically can merge that data in.
+
+There's no additional sort of like network costs that's needed, we just have a certain amount of data locally. We could provide like a really dynamic query architecture around this, like layered systems. So that, that's a different world than like our traditional model.
+
+**Sam Bhagwat:** What's the strongest argument that you see for the local first architecture becoming more and more common?
+
+**Carl Sverre:** So my argument, I think is pretty well, anyways, it's, I think of it as like very straightforward. It's. Essentially, we want no latency.
+
+We want reliability and we want collaboration. Those are three things that we are starting to expect out of our applications. The low, the no latency thing is a user experience that you can basically only achieve with local first. You can't If you have a network in your, like you have network as part of your sort of like hot path, which is like your API path, like you will have latency and that latency can be extremely variable.
+
+You're used to testing your application with like local host development. So as developers, we very rarely actually think about latency from the user experience perspective. But when someone from the other side of the world connects to your app. And it's like running over an API. That's like central.
+
+You're going to have super high latency. So that's the first thing that you like have to think about. The second thing is like reliability is really important today. Like we want users to feel that they can open their app and immediately start using it. And things like background synchronization should be a background process like that really is something that should be different, like different from the user experience.
+
+Currently, we've core like we've conflated like The user clicking a button with like full blown reliable data from it. And it's sometimes you want that. Like sometimes you want like when the user says change my password, I do really want that to be a full blown like end to end consistent thing.
+
+But in many cases, there are things you want to relax that requirement because you would rather optimize for the normal case where like. It's going to eventually synchronize the computers, probably not going to crash instantaneously. And then of course, like we have, there's other things we can do to make that safe.
+
+So we can still have safety, but we can increase the reliability by an order of magnitude by essentially minimizing how much network connectivity we need in the fast path or the hot path. And then the final thing is collaboration. It's We are starting to see collaboration show up in so many apps that we use on a daily basis.
+
+And it's almost getting to the point where like when you don't have collaboration, it's annoying. Oh no, I'm using an app that doesn't have collaboration. Like I have to email you this file. That is such an awkward concept or upload it to google drive or and then google drive doesn't support consistency management, right?
+
+So you two people edit the same doc and you just get some random document state. It's either corrupted or it's Like completely random. This is not a world that like we want anymore. Like consumers have now been like, okay, this is what we want. We want collaboration. We want everything to work. So we have to provide it.
+
+And there's one other little note on the collaboration thing, which I think is interesting, which is that more and more users are using multiple devices. That's a big one for like me, for example, like I like my applications to synchronize across all my devices. So even for applications that are not multi user, collaboration still helps our like current sort of state of consumers, because it's really common for like for example, I use a tool called Obsidian for all of my notes.
+
+And I love the fact that Obsidian synchronizes my, all my computers and my iPhone and my iPad all together. So I can always access my notes no matter where, which device I'm on at what time. So that those are like the main arguments for the local first movement. 
+
+**Sam Bhagwat:** There was a point, 2011, 2012, where there was a lot of excitement around a lot of excitement around HTML5 and Facebook built their app as a web shell, and then they had to port it back to native because native apps had the performance and the reliability that people expected.
+
+And I think as a result, we have this divergent application architecture where Android, iOS, and web development are three fundamentally different tracks, and I you feel how fast that Linear is and that's a progressive web app. No native code necessary. 
+
+If we can build web applications using local first, progressive architectures that feel like native mobile apps, we will have resolve this fragmentation of development effort and coordination that has plagued us for the last 10, 15 years.
+
+**Carl Sverre:** I think that's a really good point. We're only starting to get to the point where the web platform is able to compete with the native platform. There's still things you can't do in the web platform that you can do in the native platform. That means that some kinds of apps will just not be ported until that changes.
+
+But that, that delta is getting much, much smaller. With things like proper worker support across like different devices things, proper file system support, wasm or like WebAssembly being a major piece of it.
+
+We're getting quickly to the point where  there becomes less and less reason to have a native app. And so a big piece of that is data storage. We have to have really good, modern data storage that works for the data models that we want. 
+
+We need it to work flawlessly in the web platform. And we need it to work cross-device. So one thing about SQLSync that I'm really excited about is that SQLSync already works cross device. Like you can use SQLSync on your iPhone, your Android, your Chrome browser, your Safari browser. You get the exact same SQL light query model, the exact same replication model, networking architecture across all of those systems. And so suddenly your web app feels like a native app from a data perspective. 
+
+**Sam Bhagwat:** This is what makes me really excited about the local-first movement is watching all these things that we've wanted for so long, to be real on the web, feel like they're reachable using local first technologies.
+
+Okay, so finishing up, what are things that like you would think about in terms of application architecture?
+
+What would be your checklist of think about X, think about Y, think about Z?
+
+**Carl Sverre:** yeah, that's that's definitely a pretty heavy question. There's so many things you have to think about when you're building an app.
+
+And a lot of those things you have to do with any app. Do all those things that you normally would be thinking about. At some point, you're going to come up with like your data model problem, which is like, how do I model the data structures that like back my application? Now the correct answer to this is there's no correct answer. Like every single app has a different set of requirements. But if you have an app where you're like, all right, one set of features that I want in my application is like this local first collaborative experience. Like I, I've carved out like this chunk of the app and I've said this is gonna be collaborative.
+
+It doesn't have to be your whole app. Like I think it's the first thing to, to point out that you don't have to be all or nothing. 
+
+Like I'm not going to try to reinvent the wheel and the advantage of doing so is that all your framework stuff just automatically works, like your backend stuff, you can continue to use the cloud, the way you've been using it. You don't have to change those. So good cases for not reinventing the wheel are things like your user database, like the management of users in your system, you probably just want it to be consistent and simple and correct.
+
+You don't want to have to deal with eventual consistency and all these additional complexities when you're talking about who is allowed to do what in my system. Another example of a good high level data model that you don't really need to be collaborative is metadata that exists. At a high level so like for example, if you were building like a custom wiki like notion, you know the database that contains which wikis exists and who has access to what wiki like those high level metadata concepts They also don't really have to be collaborative.
+
+Like it's probably okay that you're it's a slower API call that like creates a new data, a new wiki, because you want that to be consistent. You want to be able to do a bunch of stuff around that and make sure it's a really good experience. You don't want to have to deal with vocal first. So the first thing is figure out what portion of your app actually has to be collaborative and feel free to make that a very small, tight portion.
+
+Once you've done that, now you have to, now you have to ask like the model, the question of is essentially what's your sharding layer for that model? Because Local first works really well when we can actually synchronize the entire document state to every single user. And so we don't want every single customer to be in one gigantic local first document.
+
+We want to somehow shard it across probably customers and then maybe even a lower granularity than that. And so for example, like we'll give some examples. So like in the Figma case, your shard, your natural sharding object is the per file sharding object, right? It's like for every single Figma file.
+
+We want to have one document that is collaborative. And so users editing different documents, we'll see we'll be working on completely different collaborative data models. So that's like a good example of the sort of super granular approach. And then you can go a little higher, like you could basically say, okay, I'm like building an HR app.
+
+So each. The like we're gonna we're gonna start across customers, so like we're gonna have one collaborative document for each customer, and then maybe we're gonna start across permission. So within each customer, we're gonna have in collaborative documents, mapping to like permission layers like that could be a model that you go with.
+
+And then you need to think about is like, how big are these documents going to get? And make sure that you are yeah. Considering like the scales of things because if you shard everyone into a document and that document ends up being Justin Timberlake's like fan comments, suddenly you have one cloud of document with 100 billion comments and that's not going to work very well in a local first architecture.
+
+So you do need to think about your scales, but that's true pretty much with any data model that you build, like even a centralized data model, you still have to think about scale and thinking about like how you model things. But I think the most important thing here I'm trying to convey is.
+
+Start off by figuring out what portion of your app needs to be collaborative. And then within that portion, how can you shard across many collaborative states, like independent document states. And if you do that, then I think the local first model, like pretty much any local first system that whether it's SQL Sync or another local first system will map to that model really effectively.
+
+**Sam Bhagwat:** That's awesome. Thanks for taking the time Carl. Thanks for chatting and sharing your expertise and with the community. Thanks for joining us. 
+
+**Carl Sverre:** Yeah, thank you so much. 
