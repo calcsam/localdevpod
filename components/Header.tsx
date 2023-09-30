@@ -37,7 +37,6 @@ const Header = () => {
               {link.title}
             </Link>
           ))}
-        { headerNavLinks.length > 8 ? <SearchButton /> : null }
         <ThemeSwitch />
         <MobileNav />
       </div>
